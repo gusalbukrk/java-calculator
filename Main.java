@@ -11,6 +11,8 @@ import java.awt.FontFormatException;
 import java.awt.font.TextAttribute;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -34,80 +36,78 @@ class Frame extends JFrame  implements ActionListener {
 
   Frame() {
     this.setTitle("Calculator");
-    this.setResizable(false);
+    this.setResizable(true);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.getContentPane().setBackground(this.getRandomColor());
-    this.setLayout(null); // required
+    // this.setLayout(new BorderLayout()); // default
 
-    JPanel outerPanel = new JPanel();
-    // outerPanel.setBackground(new Color(0xd3d3d3));
-    outerPanel.setBounds(10, 10, 305, 370);
-    outerPanel.setLayout(null);
-    outerPanel.setOpaque(false);
-    this.add(outerPanel);
+    JPanel outer = new JPanel();
+    outer.setPreferredSize(new Dimension(325, 370));
+    outer.setBorder(new EmptyBorder(10, 10, 10, 10));
+    outer.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+    outer.setOpaque(false);
+    this.add(outer);
     
-    this.setPreferredSize(new Dimension(325, 390));;
-    this.pack();
-
     label = new JLabel();
     label.setText("0");
-    label.setBounds(10, 10, 285, 70 );
+    label.setPreferredSize(new Dimension(305, 70));
     label.setOpaque(true);
     label.setBackground(Color.WHITE);
     label.setForeground(Color.BLACK);
-    // label.setFont(new Font("Sans-serif", Font.BOLD, 32));
-    // label.setFont(this.getSegoeFont(32, TextAttribute.WEIGHT_HEAVY));
     label.setFont(this.getSegoeFont(32, Font.BOLD));
     label.setHorizontalAlignment(JLabel.RIGHT);
     label.setBorder(new EmptyBorder(0,0,0,10)); //top,left,bottom,right
-    outerPanel.add(label);
+    outer.add(label);
 
-    JPanel innerPanel = new JPanel();
-    innerPanel.setBounds(10, 100, 285, 260);
-    innerPanel.setLayout(new GridLayout(5, 4, 3, 3));
-    innerPanel.setOpaque(false);
-    outerPanel.add(innerPanel);
+    // space between result label and buttons' panel
+    JPanel space = new JPanel();
+    space.setOpaque(false);
+    space.setPreferredSize(new Dimension(305, 30));
+    outer.add(space);
 
-    String[] values = {
+    JPanel inner = new JPanel();
+    inner.setPreferredSize(new Dimension(305, 250));
+    inner.setLayout(new GridLayout(5, 4, 3, 3));
+    inner.setOpaque(false);
+    outer.add(inner);
+
+    String[] keys = {
       "C", "B", "( )", "/", "7", "8", "9", "*", "4", "5", "6", "-", "1", "2", "3", "+", "c", "0", ".", "="
     };
 
-    JButton[] buttons = new JButton[values.length];
+    JButton[] buttons = new JButton[keys.length];
 
-    for (int i = 0; i < values.length; i++) {
+    for (int i = 0; i < keys.length; i++) {
       JButton button = new JButton();
 
-      button.setActionCommand(values[i]);
+      button.setActionCommand(keys[i]);
 
       // add icons to backspace, delete and colors buttons and text to everything else
-      if (values[i] == "c") {
+      if (keys[i] == "c") {
         ImageIcon icon = new ImageIcon(getClass().getResource("colors.png"));
         button.setIcon(icon);
-      } else if (values[i] == "B") {
+      } else if (keys[i] == "B") {
         ImageIcon icon = new ImageIcon(getClass().getResource("backspace.png"));
         button.setIcon(icon);
-      } else if (values[i] == "C") {
+      } else if (keys[i] == "C") {
         ImageIcon icon = new ImageIcon(getClass().getResource("delete.png"));
         button.setIcon(icon);
       } else {
-        button.setText(values[i]);
+        button.setText(keys[i]);
       }
 
       button.setFocusable(false);
       button.setBackground(Color.WHITE);
       button.setForeground(Color.BLACK);
       button.setBorder(null);;
-      button.setFont(this.getSegoeFont(18,
-      // values[i].matches("\\d") ? Font.BOLD : Font.PLAIN
-      Font.BOLD
-      ));
-
+      button.setFont(this.getSegoeFont(18, Font.BOLD));
       button.addActionListener(this);
 
       buttons[i] = button;
-      innerPanel.add(button);
+      inner.add(button);
     }
 
+    this.pack();
     this.setVisible(true);
     this.setLocationRelativeTo(null);
   }
@@ -132,7 +132,13 @@ class Frame extends JFrame  implements ActionListener {
       label.setText(result);
 
     } else if (e.getActionCommand() == "B") {
-      label.setText(label.getText().substring(0, label.getText().length() - 1));
+      
+      if (label.getText().length() == 0) return;
+
+      label.setText(
+        label.getText().length() == 1 ? "0" : label.getText().substring(0, label.getText().length() - 1)
+      );
+
     } else if (e.getActionCommand() == "C") {
       label.setText("0");
     } else if (e.getActionCommand() == "c") {
